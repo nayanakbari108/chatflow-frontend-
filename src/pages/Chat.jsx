@@ -70,10 +70,13 @@ const Container = styled.div`
   gap: 1rem;
   align-items: center;
   background-color: #131324;
+
   .container {
+    border-radius:2rem;
     height: 85vh;
     width: 85vw;
     background-color: #00000076;
+    box-shadow: rgba(0, 0, 0, 0.35) 1px 1px 25px 10px;
     display: grid;
     grid-template-columns: 25% 75%;
     @media screen and (min-width: 720px) and (max-width: 1080px) {

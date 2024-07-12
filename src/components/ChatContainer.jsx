@@ -109,9 +109,10 @@ export default function ChatContainer({ currentChat, socket }) {
 
 const Container = styled.div`
   display: grid;
-  grid-template-rows: 10% 80% 10%;
+  grid-template-rows: 15% 70% 15%;
   gap: 0.1rem;
   overflow: hidden;
+  
   @media screen and (min-width: 720px) and (max-width: 1080px) {
     grid-template-rows: 15% 70% 15%;
   }
@@ -120,6 +121,7 @@ const Container = styled.div`
     justify-content: space-between;
     align-items: center;
     padding: 0 2rem;
+    border-radius:2rem;
     .user-details {
       display: flex;
       align-items: center;

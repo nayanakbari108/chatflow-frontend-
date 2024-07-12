@@ -6,6 +6,25 @@ export default function Contacts({ contacts, changeChat }) {
   const [currentUserName, setCurrentUserName] = useState(undefined);
   const [currentUserImage, setCurrentUserImage] = useState(undefined);
   const [currentSelected, setCurrentSelected] = useState(undefined);
+  const [search, setSearch] = useState("");
+  const [filteredContacts, setFilteredContacts] = useState([]);
+  // Check if string is empty or contains whitespaces
+  const isEmptyOrSpaces = (str) => {
+    return /^\s*$/.test(str);
+  };
+
+  // Search Contacts Logic
+  useEffect(() => {
+      const re = RegExp(
+        `.*${search.toLowerCase().replace(/\s+/g, "").split("").join(".*")}.*`
+      );
+      const searchResults = contacts.filter((v) =>
+        v.username.toLowerCase().match(re)
+      );
+  
+      setFilteredContacts(searchResults);
+  }, [search]);
+
   useEffect(async () => {
     const data = await JSON.parse(
       localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
@@ -13,10 +32,34 @@ export default function Contacts({ contacts, changeChat }) {
     setCurrentUserName(data.username);
     setCurrentUserImage(data.avatarImage);
   }, []);
+
   const changeCurrentChat = (index, contact) => {
     setCurrentSelected(index);
     changeChat(contact);
   };
+  //extra
+  const showContacts = (contact, index) =>{
+    return (
+      <div
+        key={contact._id}
+        className={`contact ${
+          index === currentSelected ? "selected" : ""
+        }`}
+        onClick={() => changeCurrentChat(index, contact)}
+      >
+        <div className="avatar">
+          <img
+            src={`data:image/svg+xml;base64,${contact.avatarImage}`}
+            alt=""
+          />
+        </div>
+        <div className="username">
+          <h3>{contact.username}</h3>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       {currentUserImage && currentUserImage && (
@@ -26,27 +69,44 @@ export default function Contacts({ contacts, changeChat }) {
             <h3>ChatFlow</h3>
           </div>
           <div className="contacts">
+          <div className="contacts-search">
+              <input
+                type="text"
+                placeholder="Search Contacts"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            {/* Show Searched Contacts */}
+            {isEmptyOrSpaces(search) ? (
+              contacts.map((contact, i) => showContacts(contact, i))
+            ) : filteredContacts.length > 0 ? (
+              filteredContacts.map((contact, i) => showContacts(contact, i))
+            ) : (
+              <p>No Contacts Found.</p>
+            )}
             {contacts.map((contact, index) => {
-              return (
-                <div
-                  key={contact._id}
-                  className={`contact ${
-                    index === currentSelected ? "selected" : ""
-                  }`}
-                  onClick={() => changeCurrentChat(index, contact)}
-                >
-                  <div className="avatar">
-                    <img
-                      src={`data:image/svg+xml;base64,${contact.avatarImage}`}
-                      alt=""
-                    />
-                  </div>
-                  <div className="username">
-                    <h3>{contact.username}</h3>
-                  </div>
-                </div>
-              );
-            })}
+              // return (
+              //   <div
+              //     key={contact._id}
+              //     className={`contact ${
+              //       index === currentSelected ? "selected" : ""
+              //     }`}
+              //     onClick={() => changeCurrentChat(index, contact)}
+              //   >
+              //     <div className="avatar">
+              //       <img
+              //         src={`data:image/svg+xml;base64,${contact.avatarImage}`}
+              //         alt=""
+              //       />
+              //     </div>
+              //     <div className="username">
+              //       <h3>{contact.username}</h3>
+              //     </div>
+              //   </div>
+              // );
+            })
+            }
           </div>
           <div className="current-user">
             <div className="avatar">
@@ -66,9 +126,11 @@ export default function Contacts({ contacts, changeChat }) {
 }
 const Container = styled.div`
   display: grid;
-  grid-template-rows: 10% 75% 15%;
+  grid-template-rows: 15% 70% 15%;
   overflow: hidden;
   background-color: #080420;
+  border-top-left-radius:2rem;
+  border-bottom-left-radius:2rem;
   .brand {
     display: flex;
     align-items: center;
@@ -87,8 +149,9 @@ const Container = styled.div`
     flex-direction: column;
     align-items: center;
     overflow: auto;
+    overflow-x:hidden;
     gap: 0.8rem;
-    &::-webkit-scrollbar {
+    &::-webkit-scrollbar{
       width: 0.2rem;
       &-thumb {
         background-color: #ffffff39;
@@ -96,12 +159,42 @@ const Container = styled.div`
         border-radius: 1rem;
       }
     }
+    p{
+    color:white;
+    }
+    .contacts-search {
+      width: 90%;
+      height: 2.5rem;
+      border-radius: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      background-color: rgba(255, 255, 255, 0.204);
+
+      input {
+        background-color: transparent;
+        color: #fff;
+        border: none;
+        padding-top:0.5rem;
+        padding-bottom:0.5rem;
+        padding-left: 1rem;
+        font-size: 1.2rem;
+
+        &::selection {
+          background-color: #9a86f3;
+        }
+
+        &:focus {
+          outline: none;
+        }
+      }
+    }
     .contact {
       background-color: #ffffff34;
-      min-height: 5rem;
+      min-height: 4.5rem;
       cursor: pointer;
       width: 90%;
-      border-radius: 0.2rem;
+      border-radius: 0.8rem;
       padding: 0.4rem;
       display: flex;
       gap: 1rem;
@@ -128,10 +221,10 @@ const Container = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 2rem;
+    gap: 0.5rem;
     .avatar {
       img {
-        height: 4rem;
+        height: 3.5rem;
         max-inline-size: 100%;
       }
     }
